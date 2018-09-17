@@ -8,6 +8,8 @@ PImage banner;             //Banner image
 PImage[] main;             //Main images
 int mouseStart;            //X coordinate of the mouse when it was pressed
 float followMultiplier = 0.8;   //Multiplier for the speed of the screen adjusment to a new target location 
+int lastPress = 0;         //On which millisecond of the program's runtime was the screen interacted with last time
+int waitTime = 60000;      //How long the poster waits until it resets to the introduction page (milliseconds)
 void setup()
 {
   mouseStart = 0;          //Setting mouseStart
@@ -29,7 +31,7 @@ void draw()
   drawBanner(); 
   drawSelectionBar();
   drawMain();
-  
+  checkIfResetIsNeeded();
 }
 void mousePressed()
 {
@@ -85,6 +87,7 @@ void mouseReleased()
 }
 void mouseClicked()
 {
+  lastPress = millis();
   if(mouseY > bannerHeight && mouseY < bannerHeight + selectionHeight)  //Mouse is on the selection bar
   for(int i = 0; i < main.length; i++)  //For each button in the selection bar
   {
@@ -93,6 +96,7 @@ void mouseClicked()
       shownImage = i;                //Set the shown image to the one which was pressed
       prevImage = shownImage - 1;    //Set next and previous images accordingly
       nextImage = shownImage + 1;
+      imgLoc = 0;
       if(prevImage < 0)              //make sure the indexes do not leave the array
       {
         prevImage = main.length - 1;
@@ -103,6 +107,16 @@ void mouseClicked()
       }
     }
   }
+}
+void checkIfResetIsNeeded()
+{
+ if(millis() - lastPress > waitTime)    //If the time since the mouse was clicked is more than the wait time
+ {
+  prevImage = 5;         //Reset the images
+  shownImage = 0;        
+  nextImage = 1;      
+  lastPress = millis();  //Reset the last time pressed, so it doesn't reset every frame
+ }
 }
 void drawBanner()
 //Draws the banner
